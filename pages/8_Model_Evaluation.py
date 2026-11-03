@@ -16,7 +16,8 @@ rng=np.random.default_rng(42); y=(rng.random(1000)<prevalence).astype(int); prob
 counts,done=exercise_result(confusion_matrix_from_scratch,y,predicted)
 with visual.container(border=True):
     if done:
-        tn,fp,fn,tp=counts; st.dataframe({"Predicted negative":[tn,fn],"Predicted positive":[fp,tp]},width="stretch")
+        tn,fp,fn,tp=counts
+        st.markdown("|  | Predicted negative | Predicted positive |\n|---|---:|---:|\n| Actual negative | " + str(tn) + " | " + str(fp) + " |\n| Actual positive | " + str(fn) + " | " + str(tp) + " |")
         columns=st.columns(5)
         for column,(label,fn_metric) in zip(columns,[("Accuracy",accuracy),("Precision",precision),("Recall",recall),("Specificity",specificity),("F1",f1_score)]):
             value,ok=exercise_result(fn_metric,tn,fp,fn,tp)

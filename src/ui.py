@@ -84,7 +84,13 @@ def use_case_panel(use_when,avoid_when,alternatives):
             st.markdown(f"#### {title}"); st.markdown("\n".join(f"- {item}" for item in items))
 
 def what_to_notice(text): st.caption(f"**What to notice:** {text}")
-def method_catalog_table(methods): st.dataframe([{"Method":x["name"],"Status":x["status"],"Good fit":x["fit"],"Main tradeoff":x["tradeoff"]} for x in methods],hide_index=True,width="stretch")
+def method_catalog_table(methods):
+    rows = ["| Method | Status | Good fit | Main tradeoff |", "|---|---|---|---|"]
+    rows.extend(
+        f"| {x['name']} | {x['status']} | {x['fit']} | {x['tradeoff']} |"
+        for x in methods
+    )
+    st.markdown("\n".join(rows))
 def concept_card(title,body,footer):
     accent=_accent_for(title)
     st.markdown(f'<div class="ml-card" style="--card-accent:{accent}"><h4>{title}</h4><p>{body}</p><div class="ml-card-foot">{footer}</div></div>',unsafe_allow_html=True)
