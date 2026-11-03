@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
-from scipy.stats import beta
-from src.exercises.bayesian import beta_binomial_update, posterior_mean
-from src.ui import apply_global_style, exercise_result, implementation_guide, interview_questions, math_panel, page_header, section_header
+from src.exercises.bayesian import beta_binomial_update, beta_pdf, posterior_mean
+from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header
 
 apply_global_style(); page_header("Bayesian Updating","Make priors, evidence, and posterior uncertainty tangible.",eyebrow="STATISTICS")
 section_header("1. Concept")
@@ -14,9 +13,9 @@ controls, visual=st.columns([1,2],gap="large")
 with controls.container(border=True):
     st.markdown("#### Prior and evidence")
     a=st.slider("Prior α",1,30,2); b=st.slider("Prior β",1,30,2); s=st.slider("Successes",0,100,7); f=st.slider("Failures",0,100,3)
-posterior,done=exercise_result(beta_binomial_update,a,b,s,f); x=np.linspace(.001,.999,400); fig,ax=plt.subplots(); ax.plot(x,beta.pdf(x,a,b),label="Prior")
+posterior,done=exercise_result(beta_binomial_update,a,b,s,f); x=np.linspace(.001,.999,400); fig,ax=plt.subplots(); ax.plot(x,beta_pdf(x,a,b),label="Prior")
 if done:
-    pa,pb=posterior; ax.plot(x,beta.pdf(x,pa,pb),label="Posterior"); mean,ok=exercise_result(posterior_mean,pa,pb)
+    pa,pb=posterior; ax.plot(x,beta_pdf(x,pa,pb),label="Posterior"); mean,ok=exercise_result(posterior_mean,pa,pb)
     if ok: st.metric("Your posterior mean",f"{mean:.3f}")
 ax.set(xlabel="Success probability",ylabel="Density"); ax.legend()
 with visual.container(border=True):

@@ -1,9 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import streamlit as st
 from src.exercises.forecasting import seasonal_naive_forecast, simple_exponential_smoothing
-from src.ui import exercise_result, implementation_guide, interview_questions, math_panel, playground_layout, section_header, task_header, what_to_notice
+from src.ui import exercise_result, interview_questions, math_panel, playground_layout, section_header, task_header, what_to_notice
+
+
+def exponential_smoothing_fitted(series, alpha):
+    levels = np.empty_like(np.asarray(series, dtype=float))
+    levels[0] = series[0]
+    for index in range(1, len(series)):
+        levels[index] = alpha * series[index] + (1 - alpha) * levels[index - 1]
+    return levels, float(levels[-1])
+
 
 task_header("Forecasting","Forecasting Lab","Start with temporal baselines before reaching for complex models.","SUPERVISED · TEMPORAL")
 section_header("Concept and mathematics")
@@ -23,7 +31,7 @@ with visual:
     else:
         result,complete=exercise_result(simple_exponential_smoothing,series,alpha)
         if complete: fitted,next_value=result
-        else: fitted=pd.Series(series).ewm(alpha=alpha,adjust=False).mean().to_numpy(); next_value=fitted[-1]
+        else: fitted,next_value=exponential_smoothing_fitted(series,alpha)
         forecast=np.repeat(next_value,horizon); notice="Larger alpha reacts faster to recent changes but follows noise more closely."
     fig,ax=plt.subplots(); ax.plot(t,series,label="Observed"); ax.plot(future,forecast,label="Forecast",color="#f59e0b",linewidth=2); ax.axvline(periods-1,color="gray",ls="--",alpha=.6); ax.legend(); ax.set(xlabel="Time",ylabel="Value",title=method); st.pyplot(fig,width="stretch"); what_to_notice(notice)
 section_header("Interview prep")

@@ -1,10 +1,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
-from sklearn.cluster import DBSCAN, KMeans
-from sklearn.datasets import make_blobs, make_moons
 from src.exercises.clustering import dbscan, fit_kmeans
-from src.ui import exercise_result, implementation_guide, interview_questions, math_panel, playground_layout, section_header, task_header, what_to_notice
+from src.ui import exercise_result, interview_questions, math_panel, playground_layout, section_header, task_header, what_to_notice
+
+
+def make_blobs(samples, centers=3, seed=42):
+    rng = np.random.default_rng(seed)
+    offsets = np.array([[-2.5, -1.5], [0.0, 2.0], [2.5, -0.5]], dtype=float)
+    return offsets[np.arange(samples) % centers] + rng.normal(0, .55, (samples, 2))
+
+
+def make_moons(samples, noise=.08, seed=42):
+    rng = np.random.default_rng(seed)
+    count = (samples + 1) // 2
+    angles = np.linspace(0, np.pi, count)
+    first = np.column_stack([np.cos(angles), np.sin(angles)])
+    second = np.column_stack([1 - np.cos(angles), 1 - np.sin(angles) - .5])
+    X = np.vstack([first, second])[:samples]
+    return X + rng.normal(0, noise, X.shape)
+
 
 task_header("Clustering","Clustering Lab","Compare centroid-based and density-based definitions of a group.","UNSUPERVISED")
 section_header("Concept and mathematics")
@@ -21,18 +36,16 @@ with controls:
     samples=st.slider("Samples",100,600,250,50); seed=st.number_input("Random seed",0,999,42)
     if algorithm=="K-means": clusters=st.slider("Number of clusters",2,8,3)
     else: epsilon=st.slider("Epsilon",.05,1.0,.25,.05); min_samples=st.slider("Minimum samples",2,20,5)
-X,_=(make_blobs(n_samples=samples,centers=3,cluster_std=.8,random_state=seed) if shape=="Blobs" else make_moons(n_samples=samples,noise=.08,random_state=seed))
+X=(make_blobs(samples,seed=int(seed)) if shape=="Blobs" else make_moons(samples,noise=.08,seed=int(seed)))
 with visual:
     if algorithm=="K-means":
         result,complete=exercise_result(fit_kmeans,X,clusters,100,1e-4,int(seed))
         if complete: centroids,labels,_=result
-        else:
-            reference=KMeans(n_clusters=clusters,n_init=10,random_state=seed).fit(X); labels=reference.labels_; centroids=reference.cluster_centers_
+        else: centroids,labels=result
         fig,ax=plt.subplots(); ax.scatter(X[:,0],X[:,1],c=labels,cmap="viridis",s=22,alpha=.8); ax.scatter(centroids[:,0],centroids[:,1],marker="X",s=180,c="white",edgecolor="black")
-        what_to_notice("K-means partitions space around centroids and struggles when clusters are curved or differently sized.")
+        what_to_notice("K-means partitions space around centroids and struggles when curved groups differ in shape or density.")
     else:
-        result,complete=exercise_result(dbscan,X,epsilon,min_samples)
-        labels=result if complete else DBSCAN(eps=epsilon,min_samples=min_samples).fit_predict(X)
+        labels=exercise_result(dbscan,X,epsilon,min_samples)[0]
         fig,ax=plt.subplots(); ax.scatter(X[:,0],X[:,1],c=labels,cmap="tab10",s=22,alpha=.8)
         what_to_notice("DBSCAN can recover curved groups and noise, but epsilon depends strongly on feature scale.")
     ax.set(title=f"{algorithm} on {shape.lower()}",xlabel="Feature 1",ylabel="Feature 2"); st.pyplot(fig,width="stretch")

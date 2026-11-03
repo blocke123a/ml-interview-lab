@@ -1,9 +1,32 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
-from sklearn.datasets import make_circles, make_moons
 from src.exercises.neural_network import forward_pass, relu, sigmoid, train_network
 from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header, what_to_notice
+
+
+def make_moons(samples, noise=.18, random_state=42):
+    rng = np.random.default_rng(random_state)
+    count = (samples + 1) // 2
+    angles = np.linspace(0, np.pi, count)
+    first = np.column_stack([np.cos(angles), np.sin(angles)])
+    second = np.column_stack([1 - np.cos(angles), 1 - np.sin(angles) - .5])
+    labels = np.concatenate([np.zeros(count, dtype=int), np.ones(samples-count, dtype=int)])[:samples]
+    return np.vstack([first, second])[:samples] + rng.normal(0, noise, np.vstack([first, second])[:samples].shape), labels
+
+
+def make_circles(samples, noise=.12, factor=.5, random_state=42):
+    rng = np.random.default_rng(random_state)
+    outer_count = (samples + 1) // 2
+    inner_count = samples - outer_count
+    outer_angles = rng.random(outer_count) * 2*np.pi
+    inner_angles = rng.random(inner_count) * 2*np.pi
+    outer = np.column_stack([np.cos(outer_angles), np.sin(outer_angles)])
+    inner = factor*np.column_stack([np.cos(inner_angles), np.sin(inner_angles)])
+    labels = np.concatenate([np.zeros(outer_count, dtype=int), np.ones(inner_count, dtype=int)])
+    X = np.vstack([outer, inner]) + rng.normal(0, noise, (samples, 2))
+    return X, labels
+
 
 apply_global_style(); page_header("Neural Networks","Train a small network and compare its nonlinear decisions with its learning behavior.",eyebrow="DEEP LEARNING")
 section_header("1. Concept")
@@ -38,9 +61,9 @@ with control_columns[5]: seed=st.number_input("Random seed",0,999,42)
 
 noise=.18 if shape=="Moons" else .12
 if shape=="Moons":
-    X,y=make_moons(n_samples=samples,noise=noise,random_state=int(seed))
+    X,y=make_moons(samples=samples,noise=noise,random_state=int(seed))
 else:
-    X,y=make_circles(n_samples=samples,noise=noise,factor=.5,random_state=int(seed))
+    X,y=make_circles(samples=samples,noise=noise,factor=.5,random_state=int(seed))
 
 parameters,loss_history=train_network(X,y,hidden_units,learning_rate,iterations,seed=int(seed))
 probabilities,_=forward_pass(X,parameters)
