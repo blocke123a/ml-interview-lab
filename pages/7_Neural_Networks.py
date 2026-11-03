@@ -1,23 +1,76 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
-from src.exercises.neural_network import relu, sigmoid
-from src.ui import apply_global_style, exercise_result, implementation_guide, interview_questions, math_panel, page_header, section_header
+from sklearn.datasets import make_circles, make_moons
+from src.exercises.neural_network import forward_pass, relu, sigmoid, train_network
+from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header, what_to_notice
 
-apply_global_style(); page_header("Neural Networks","",eyebrow="DEEP LEARNING")
+apply_global_style(); page_header("Neural Networks","Train a small network and compare its nonlinear decisions with its learning behavior.",eyebrow="DEEP LEARNING")
 section_header("1. Concept")
 st.markdown("A neural network composes affine transformations with nonlinear activations. Backpropagation efficiently applies the chain rule to compute every parameter gradient.")
 math_panel("Two-layer forward pass",r"Z_1=XW_1+b_1,\quad A_1=\operatorname{ReLU}(Z_1),\quad \hat y=\sigma(A_1W_2+b_2)","The hidden nonlinearity prevents stacked layers from collapsing into one linear transformation.")
-section_header("2. Interactive Playground")
-controls, visual=st.columns([1,2],gap="large")
-with controls.container(border=True):
-    st.markdown("#### Architecture controls")
-    units=st.slider("Hidden units",1,32,4); activation=st.selectbox("Activation",["ReLU","sigmoid"]); rate=st.slider("Learning rate",.0001,1.,.05,.0001,format="%.4f")
-values=np.linspace(-5,5,200); outputs,done=exercise_result(relu if activation=="ReLU" else sigmoid,values)
-with visual.container(border=True):
-    if done: st.line_chart({"input":values,"activation":outputs},x="input",y="activation")
-    st.caption("**What to notice:** ReLU preserves positive-side gradients; sigmoid saturates at large magnitudes.")
-st.caption(f"Selected architecture: 2 inputs → {units} hidden units → 1 output; learning rate {rate:.4f}.")
-section_header("3. Interview Prep")
+
+section_header("2. Activation function reference")
+activation_controls,activation_visual=st.columns([1,3],gap="large")
+with activation_controls:
+    activation=st.selectbox("Activation",["ReLU","sigmoid"],label_visibility="collapsed")
+values=np.linspace(-5,5,200)
+outputs,done=exercise_result(relu if activation=="ReLU" else sigmoid,values)
+if done:
+    fig,ax=plt.subplots(figsize=(7,2.2))
+    ax.plot(values,outputs,color="#d946ef",linewidth=2)
+    ax.axhline(0,color="gray",linewidth=.6); ax.axvline(0,color="gray",linewidth=.6)
+    ax.set(xlabel="z",ylabel="Activation",title=f"{activation}(z)",ylim=(-.05,1.05 if activation=="sigmoid" else 5.05))
+    ax.tick_params(labelsize=8)
+    with activation_visual:
+        st.pyplot(fig,width="stretch")
+with activation_controls:
+    st.caption("ReLU zeros negative inputs. Sigmoid keeps outputs between 0 and 1, but saturates at large magnitudes.")
+
+section_header("3. Interactive Playground")
+control_columns=st.columns(6,gap="medium")
+with control_columns[0]: shape=st.selectbox("Data shape",["Moons","Circles"])
+with control_columns[1]: hidden_units=st.slider("Hidden units",1,32,8)
+with control_columns[2]: learning_rate=st.slider("Learning rate",.0001,1.,.05,.0001,format="%.4f")
+with control_columns[3]: iterations=st.slider("Iterations",100,2000,500,100)
+with control_columns[4]: samples=st.slider("Samples",100,500,300,50)
+with control_columns[5]: seed=st.number_input("Random seed",0,999,42)
+
+noise=.18 if shape=="Moons" else .12
+if shape=="Moons":
+    X,y=make_moons(n_samples=samples,noise=noise,random_state=int(seed))
+else:
+    X,y=make_circles(n_samples=samples,noise=noise,factor=.5,random_state=int(seed))
+
+parameters,loss_history=train_network(X,y,hidden_units,learning_rate,iterations,seed=int(seed))
+probabilities,_=forward_pass(X,parameters)
+predictions=(probabilities.ravel()>=.5).astype(int)
+accuracy=float(np.mean(predictions==y))
+
+x_min,x_max=X[:,0].min()-0.35,X[:,0].max()+0.35
+y_min,y_max=X[:,1].min()-0.35,X[:,1].max()+0.35
+xx,yy=np.meshgrid(np.linspace(x_min,x_max,250),np.linspace(y_min,y_max,250))
+grid=np.column_stack([xx.ravel(),yy.ravel()])
+grid_probabilities,_=forward_pass(grid,parameters)
+zz=grid_probabilities.reshape(xx.shape)
+
+fig,(boundary_ax,loss_ax)=plt.subplots(1,2,figsize=(12,4.2),gridspec_kw={"width_ratios":[1.35,1]})
+boundary_ax.contourf(xx,yy,zz,levels=20,cmap="coolwarm",vmin=0,vmax=1,alpha=.85)
+boundary_ax.contour(xx,yy,zz,levels=[.5],colors="white",linewidths=2)
+boundary_ax.scatter(X[:,0],X[:,1],c=y,cmap="coolwarm",edgecolor="white",linewidth=.4,s=18)
+boundary_ax.set(title="Decision boundary",xlabel="Feature 1",ylabel="Feature 2",aspect="equal")
+loss_ax.plot(np.arange(len(loss_history)),loss_history,color="#d946ef",linewidth=2)
+loss_ax.set(title="Training loss",xlabel="Iteration",ylabel="Binary cross-entropy")
+fig.tight_layout()
+st.pyplot(fig,width="stretch")
+
+metric_columns=st.columns(3)
+metric_columns[0].metric("Training accuracy",f"{accuracy:.1%}")
+metric_columns[1].metric("Final loss",f"{loss_history[-1]:.4f}")
+metric_columns[2].metric("Architecture",f"2 → {hidden_units} → 1")
+what_to_notice("Increasing hidden units can create more flexible nonlinear boundaries, while a large learning rate can make training unstable or diverge.")
+
+section_header("4. Interview Prep")
 interview_questions([
 {"question":"Why do nonlinear activations matter?","answer":"Without them, stacked linear layers collapse to one linear transformation and cannot represent nonlinear decision boundaries."},
 {"question":"What is backpropagation?","answer":"An efficient reverse-mode chain-rule procedure that reuses intermediate derivatives to compute the loss gradient for every parameter."},
