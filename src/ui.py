@@ -27,8 +27,8 @@ def apply_global_style():
     .block-container {padding-top:2.2rem;padding-bottom:4rem;max-width:1200px;}
     .ml-hero {
       padding:1.5rem 1.65rem;border-radius:20px;margin-bottom:1.4rem;
-      background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 17%,transparent),rgba(128,128,128,.035));
-      border:1px solid color-mix(in srgb,var(--accent) 32%,rgba(128,128,128,.18));
+      background:linear-gradient(125deg,var(--accent-soft),rgba(128,128,128,.035));
+      border:1px solid var(--accent-border);
       border-left:5px solid var(--accent);
       box-shadow:0 10px 30px rgba(15,23,42,.06);
     }
@@ -60,7 +60,9 @@ def _accent_for(label):
 
 def page_header(title, subtitle, eyebrow="ML INTERVIEW LAB"):
     accent=_accent_for(f"{eyebrow} {title}")
-    st.markdown(f'<div class="ml-hero" style="--accent:{accent}"><div class="ml-eyebrow">{eyebrow}</div><h1>{title}</h1><div class="ml-subtitle">{subtitle}</div></div>', unsafe_allow_html=True)
+    accent_soft = f"{accent}30"
+    accent_border = f"{accent}70"
+    st.markdown(f'<div class="ml-hero" style="--accent:{accent};--accent-soft:{accent_soft};--accent-border:{accent_border}"><div class="ml-eyebrow">{eyebrow}</div><h1>{title}</h1><div class="ml-subtitle">{subtitle}</div></div>', unsafe_allow_html=True)
 
 def task_header(category, title, subtitle, progress=""):
     page_header(title, subtitle, f"{category.upper()} · {progress}" if progress else category.upper())
