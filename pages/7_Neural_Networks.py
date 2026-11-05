@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.neural_network import forward_pass, relu, sigmoid, train_network
@@ -40,13 +39,8 @@ with activation_controls:
 values=np.linspace(-5,5,200)
 outputs,done=exercise_result(relu if activation=="ReLU" else sigmoid,values)
 if done:
-    fig,ax=plt.subplots(figsize=(7,2.2))
-    ax.plot(values,outputs,color="#d946ef",linewidth=2)
-    ax.axhline(0,color="gray",linewidth=.6); ax.axvline(0,color="gray",linewidth=.6)
-    ax.set(xlabel="z",ylabel="Activation",title=f"{activation}(z)",ylim=(-.05,1.05 if activation=="sigmoid" else 5.05))
-    ax.tick_params(labelsize=8)
     with activation_visual:
-        st.pyplot(fig,width="stretch")
+        st.line_chart({"z":values,"Activation":outputs},x="z",y="Activation")
 with activation_controls:
     st.caption("ReLU zeros negative inputs. Sigmoid keeps outputs between 0 and 1, but saturates at large magnitudes.")
 
@@ -70,23 +64,11 @@ probabilities,_=forward_pass(X,parameters)
 predictions=(probabilities.ravel()>=.5).astype(int)
 accuracy=float(np.mean(predictions==y))
 
-x_min,x_max=X[:,0].min()-0.35,X[:,0].max()+0.35
-y_min,y_max=X[:,1].min()-0.35,X[:,1].max()+0.35
-xx,yy=np.meshgrid(np.linspace(x_min,x_max,250),np.linspace(y_min,y_max,250))
-grid=np.column_stack([xx.ravel(),yy.ravel()])
-grid_probabilities,_=forward_pass(grid,parameters)
-zz=grid_probabilities.reshape(xx.shape)
-
-fig,(boundary_ax,loss_ax)=plt.subplots(1,2,figsize=(12,4.2),gridspec_kw={"width_ratios":[1.35,1]})
-boundary_ax.contourf(xx,yy,zz,levels=20,cmap="coolwarm",vmin=0,vmax=1,alpha=.85)
-boundary_ax.contour(xx,yy,zz,levels=[.5],colors="white",linewidths=2)
-boundary_ax.scatter(X[:,0],X[:,1],c=y,cmap="coolwarm",edgecolor="white",linewidth=.4,s=18)
-boundary_ax.set(title="Decision boundary",xlabel="Feature 1",ylabel="Feature 2",aspect="equal")
-loss_ax.plot(np.arange(len(loss_history)),loss_history,color="#d946ef",linewidth=2)
-loss_ax.set(title="Training loss",xlabel="Iteration",ylabel="Binary cross-entropy")
-fig.tight_layout()
-st.pyplot(fig,width="stretch")
-
+plot_columns=st.columns(2,gap="large")
+with plot_columns[0]:
+    st.scatter_chart({"x1":X[:,0],"x2":X[:,1],"class":y},x="x1",y="x2",color="class")
+with plot_columns[1]:
+    st.line_chart({"iteration":np.arange(len(loss_history)),"loss":loss_history},x="iteration",y="loss")
 metric_columns=st.columns(3)
 metric_columns[0].metric("Training accuracy",f"{accuracy:.1%}")
 metric_columns[1].metric("Final loss",f"{loss_history[-1]:.4f}")

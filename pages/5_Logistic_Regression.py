@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.logistic_regression import sigmoid
-from src.ui import apply_global_style, exercise_result, implementation_guide, interview_questions, math_panel, page_header, section_header
+from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header
 
 apply_global_style(); page_header("Logistic Regression","Connect scores, log-odds, probabilities, and decisions.",eyebrow="CLASSIFICATION")
 section_header("1. Concept")
@@ -17,11 +16,8 @@ with controls.container(border=True):
     z=st.slider("Linear score z",-10.,10.,0.,.1); threshold=st.slider("Classification threshold",.05,.95,.5,.05)
 grid=np.linspace(-10,10,300); probabilities,done=exercise_result(sigmoid,grid); selected,point_done=exercise_result(sigmoid,z)
 if point_done: st.metric("Your predicted probability",f"{float(selected):.3f}",delta=f"{'positive' if selected>=threshold else 'negative'} at threshold")
-fig,ax=plt.subplots()
-if done: ax.plot(grid,probabilities,label="Your sigmoid")
-ax.axhline(threshold,ls="--",alpha=.5,label="Threshold"); ax.axvline(0,ls=":",alpha=.5); ax.set(xlabel="z",ylabel="Probability",ylim=(-.05,1.05)); ax.legend()
 with visual.container(border=True):
-    st.pyplot(fig, width="stretch")
+    if done: st.line_chart({"z":grid,"Probability":probabilities,"Threshold":np.full_like(grid,threshold)},x="z",y=["Probability","Threshold"])
     st.caption("**What to notice:** The threshold changes the decision, not the probability produced by the model.")
 section_header("3. Interview Prep")
 interview_questions([

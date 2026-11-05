@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.clustering import dbscan, fit_kmeans
@@ -40,15 +39,13 @@ X=(make_blobs(samples,seed=int(seed)) if shape=="Blobs" else make_moons(samples,
 with visual:
     if algorithm=="K-means":
         result,complete=exercise_result(fit_kmeans,X,clusters,100,1e-4,int(seed))
-        if complete: centroids,labels,_=result
-        else: centroids,labels=result
-        fig,ax=plt.subplots(); ax.scatter(X[:,0],X[:,1],c=labels,cmap="viridis",s=22,alpha=.8); ax.scatter(centroids[:,0],centroids[:,1],marker="X",s=180,c="white",edgecolor="black")
+        centroids,labels,_=result if complete else (None,None,None)
+        chart={"x1":X[:,0],"x2":X[:,1],"cluster":labels if labels is not None else np.zeros(samples,dtype=int)}
         what_to_notice("K-means partitions space around centroids and struggles when curved groups differ in shape or density.")
     else:
-        labels=exercise_result(dbscan,X,epsilon,min_samples)[0]
-        fig,ax=plt.subplots(); ax.scatter(X[:,0],X[:,1],c=labels,cmap="tab10",s=22,alpha=.8)
+        labels=exercise_result(dbscan,X,epsilon,min_samples)[0]; chart={"x1":X[:,0],"x2":X[:,1],"cluster":labels}
         what_to_notice("DBSCAN can recover curved groups and noise, but epsilon depends strongly on feature scale.")
-    ax.set(title=f"{algorithm} on {shape.lower()}",xlabel="Feature 1",ylabel="Feature 2"); st.pyplot(fig,width="stretch")
+    st.scatter_chart(chart,x="x1",y="x2",color="cluster")
 section_header("Interview prep")
 interview_questions([
  {"question":"When does K-means fail?","answer":"It struggles with non-spherical groups, unequal densities or sizes, outliers, unscaled features, and categorical variables without a meaningful Euclidean representation."},

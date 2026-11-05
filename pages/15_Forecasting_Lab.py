@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.forecasting import seasonal_naive_forecast, simple_exponential_smoothing
@@ -33,7 +32,8 @@ with visual:
         if complete: fitted,next_value=result
         else: fitted,next_value=exponential_smoothing_fitted(series,alpha)
         forecast=np.repeat(next_value,horizon); notice="Larger alpha reacts faster to recent changes but follows noise more closely."
-    fig,ax=plt.subplots(); ax.plot(t,series,label="Observed"); ax.plot(future,forecast,label="Forecast",color="#f59e0b",linewidth=2); ax.axvline(periods-1,color="gray",ls="--",alpha=.6); ax.legend(); ax.set(xlabel="Time",ylabel="Value",title=method); st.pyplot(fig,width="stretch"); what_to_notice(notice)
+    st.line_chart({"time":np.concatenate([t,future]),"Observed/forecast":np.concatenate([series,forecast])},x="time",y="Observed/forecast")
+    what_to_notice(notice)
 section_header("Interview prep")
 interview_questions([
  {"question":"Why not randomly split a time series?","answer":"It can train on observations occurring after validation examples, creating future leakage."},
