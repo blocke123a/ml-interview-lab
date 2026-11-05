@@ -20,7 +20,7 @@ if done:
     if ok: ax.plot(grid,grid_design@coefficients,label="Fit using your features")
 ax.set_title("Complexity and generalization"); ax.legend()
 with visual.container(border=True):
-    st.pyplot(fig, width="stretch")
+    st.pyplot(fig, use_container_width=True)
     st.caption("**What to notice:** Complexity reduces approximation bias but can make the fitted curve sensitive to sample noise.")
 section_header("3. Interview Prep")
 interview_questions([

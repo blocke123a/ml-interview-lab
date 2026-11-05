@@ -18,7 +18,7 @@ if done:
     xs, losses = result; ax.plot(xs, losses, "o--", label="Your optimization path")
 ax.set(xlabel="x", ylabel="Loss", title="f(x) = (x + 1)²"); ax.legend()
 with right:
-    st.pyplot(fig, width="stretch")
+    st.pyplot(fig, use_container_width=True)
     st.caption("**What to notice:** Stable learning rates approach x = −1; oversized steps oscillate or diverge.")
 section_header("3. Interview Prep")
 interview_questions([

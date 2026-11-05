@@ -48,7 +48,7 @@ with visual:
         labels=exercise_result(dbscan,X,epsilon,min_samples)[0]
         fig,ax=plt.subplots(); ax.scatter(X[:,0],X[:,1],c=labels,cmap="tab10",s=22,alpha=.8)
         what_to_notice("DBSCAN can recover curved groups and noise, but epsilon depends strongly on feature scale.")
-    ax.set(title=f"{algorithm} on {shape.lower()}",xlabel="Feature 1",ylabel="Feature 2"); st.pyplot(fig,width="stretch")
+    ax.set(title=f"{algorithm} on {shape.lower()}",xlabel="Feature 1",ylabel="Feature 2"); st.pyplot(fig,use_container_width=True)
 section_header("Interview prep")
 interview_questions([
  {"question":"When does K-means fail?","answer":"It struggles with non-spherical groups, unequal densities or sizes, outliers, unscaled features, and categorical variables without a meaningful Euclidean representation."},

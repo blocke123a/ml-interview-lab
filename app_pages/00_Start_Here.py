@@ -25,10 +25,10 @@ with unsupervised.container(border=True):
 
 section_header("2. Choose the task family")
 cards=[
- ("Regression","Predict a continuous value.","Linear → regularized → trees → boosting","pages/10_Regression_Overview.py"),
- ("Classification","Predict a label (or probability).","Logistic → trees → ensembles → neural networks","pages/11_Classification_Overview.py"),
- ("Clustering","Discover meaningful groups.","K-means → hierarchical → DBSCAN → mixtures","pages/12_Clustering_Overview.py"),
- ("Forecasting","Predict future values in time order.","Naive → smoothing → ARIMA → feature models","pages/13_Forecasting_Overview.py")]
+ ("Regression","Predict a continuous value.","Linear → regularized → trees → boosting","app_pages/10_Regression_Overview.py"),
+ ("Classification","Predict a label (or probability).","Logistic → trees → ensembles → neural networks","app_pages/11_Classification_Overview.py"),
+ ("Clustering","Discover meaningful groups.","K-means → hierarchical → DBSCAN → mixtures","app_pages/12_Clustering_Overview.py"),
+ ("Forecasting","Predict future values in time order.","Naive → smoothing → ARIMA → feature models","app_pages/13_Forecasting_Overview.py")]
 for pair in (cards[:2],cards[2:]):
     columns=st.columns(2,gap="large")
     for column,(title,body,footer,page) in zip(columns,pair):

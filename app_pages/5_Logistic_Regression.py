@@ -21,7 +21,7 @@ fig,ax=plt.subplots()
 if done: ax.plot(grid,probabilities,label="Your sigmoid")
 ax.axhline(threshold,ls="--",alpha=.5,label="Threshold"); ax.axvline(0,ls=":",alpha=.5); ax.set(xlabel="z",ylabel="Probability",ylim=(-.05,1.05)); ax.legend()
 with visual.container(border=True):
-    st.pyplot(fig, width="stretch")
+    st.pyplot(fig, use_container_width=True)
     st.caption("**What to notice:** The threshold changes the decision, not the probability produced by the model.")
 section_header("3. Interview Prep")
 interview_questions([

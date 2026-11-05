@@ -46,7 +46,7 @@ if done:
     ax.set(xlabel="z",ylabel="Activation",title=f"{activation}(z)",ylim=(-.05,1.05 if activation=="sigmoid" else 5.05))
     ax.tick_params(labelsize=8)
     with activation_visual:
-        st.pyplot(fig,width="stretch")
+        st.pyplot(fig,use_container_width=True)
 with activation_controls:
     st.caption("ReLU zeros negative inputs. Sigmoid keeps outputs between 0 and 1, but saturates at large magnitudes.")
 
@@ -85,7 +85,7 @@ boundary_ax.set(title="Decision boundary",xlabel="Feature 1",ylabel="Feature 2",
 loss_ax.plot(np.arange(len(loss_history)),loss_history,color="#d946ef",linewidth=2)
 loss_ax.set(title="Training loss",xlabel="Iteration",ylabel="Binary cross-entropy")
 fig.tight_layout()
-st.pyplot(fig,width="stretch")
+st.pyplot(fig,use_container_width=True)
 
 metric_columns=st.columns(3)
 metric_columns[0].metric("Training accuracy",f"{accuracy:.1%}")

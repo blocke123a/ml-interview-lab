@@ -26,7 +26,7 @@ if done:
         if ok: st.metric("Your MSE",f"{mse:.3f}")
 ax.set(xlabel="x",ylabel="y",title="Synthetic regression data"); ax.legend()
 with visual.container(border=True):
-    st.pyplot(fig, width="stretch")
+    st.pyplot(fig, use_container_width=True)
     st.caption("**What to notice:** More noise widens residuals without changing the underlying data-generating slope.")
 section_header("3. Interview Prep")
 interview_questions([

@@ -19,7 +19,7 @@ if done:
     if ok: st.metric("Your posterior mean",f"{mean:.3f}")
 ax.set(xlabel="Success probability",ylabel="Density"); ax.legend()
 with visual.container(border=True):
-    st.pyplot(fig, width="stretch")
+    st.pyplot(fig, use_container_width=True)
     st.caption("**What to notice:** More evidence narrows the posterior; stronger priors resist movement from small samples.")
 section_header("3. Interview Prep")
 interview_questions([

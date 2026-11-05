@@ -7,7 +7,7 @@ An interactive Streamlit study guide for learning data science and machine learn
 This repository separates **algorithm code** from **reference content**:
 
 - `src/exercises/` contains first-principles algorithm implementations.
-- `pages/` contains explanations, interactive playgrounds, and interview answers.
+- `app_pages/` contains explanations, interactive playgrounds, and interview answers.
 - `src/ui.py` keeps page presentation and exercise-error handling consistent.
 
 If an exercise is still unfinished, its page explains what is missing and keeps independent content available. Implemented functions feed the visualizations when Streamlit reruns.
