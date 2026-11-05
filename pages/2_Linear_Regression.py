@@ -1,7 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.linear_regression import fit_simple_ols, mean_squared_error, predict
-from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header
+from src.ui import apply_global_style, exercise_result, implementation_guide, interview_questions, math_panel, page_header, section_header
 
 apply_global_style(); page_header("Linear Regression", "", eyebrow="CLASSICAL ML")
 section_header("1. Concept")
@@ -15,18 +16,17 @@ with controls.container(border=True):
     st.markdown("#### Data controls")
     seed=st.number_input("Random seed",0,9999,42); noise=st.slider("Noise",0.,10.,2.,.1); n=st.slider("Samples",20,500,100)
 rng=np.random.default_rng(seed); x=rng.uniform(-5,5,n); y=3*x+2+rng.normal(0,noise,n)
-fit,done=exercise_result(fit_simple_ols,x,y)
+fit,done=exercise_result(fit_simple_ols,x,y); fig,ax=plt.subplots(); ax.scatter(x,y,alpha=.6,label="Data")
+if done:
+    intercept,slope=fit; grid=np.linspace(x.min(),x.max(),100); line,ok=exercise_result(predict,grid,intercept,slope)
+    if ok: ax.plot(grid,line,color="tab:orange",label="Your OLS fit")
+    train,ok=exercise_result(predict,x,intercept,slope)
+    if ok:
+        mse,ok=exercise_result(mean_squared_error,y,train)
+        if ok: st.metric("Your MSE",f"{mse:.3f}")
+ax.set(xlabel="x",ylabel="y",title="Synthetic regression data"); ax.legend()
 with visual.container(border=True):
-    st.scatter_chart({"x":x,"y":y},x="x",y="y")
-    if done:
-        intercept,slope=fit; grid=np.linspace(x.min(),x.max(),100)
-        line,ok=exercise_result(predict,grid,intercept,slope)
-        if ok:
-            st.line_chart({"x":grid,"OLS fit":line},x="x",y="OLS fit")
-        train,ok=exercise_result(predict,x,intercept,slope)
-        if ok:
-            mse,ok=exercise_result(mean_squared_error,y,train)
-            if ok: st.metric("Your MSE",f"{mse:.3f}")
+    st.pyplot(fig, width="stretch")
     st.caption("**What to notice:** More noise widens residuals without changing the underlying data-generating slope.")
 section_header("3. Interview Prep")
 interview_questions([
@@ -36,6 +36,6 @@ interview_questions([
 {"question":"R-squared vs adjusted R-squared?","answer":"R² never falls when features are added. Adjusted R² penalizes added predictors and can fall when they contribute too little."},
 {"question":"Confidence interval vs prediction interval?","answer":"A confidence interval targets a mean response; a prediction interval targets a new outcome and is wider because it includes outcome noise."},
 {"question":"Must features be normally distributed?","answer":"No. Predictor normality is not an OLS assumption."},
-{"question":"When is Ridge preferable to Lasso?","answer":"Often when correlated predictors carry distributed signal and stable prediction matters. Lasso better matches a plausible sparse solution."},
+{"question":"When is Ridge preferable to Lasso?","answer":"Often when correlated predictors carry distributed signal and stable prediction matters. Lasso better matches a plausible sparse solution (because it drops non-significant predictors)."},
 {"question":"Why are outliers influential?","answer":"Squared loss gives large residuals disproportionate weight, which in turn gives outliers high leverage."},
 ])

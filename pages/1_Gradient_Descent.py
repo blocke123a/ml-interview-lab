@@ -1,7 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from src.exercises.gradient_descent import gradient_descent, objective_gradient
-from src.ui import apply_global_style, exercise_result, interview_questions, math_panel, page_header, section_header
+from src.ui import apply_global_style, exercise_result, implementation_guide, interview_questions, math_panel, page_header, section_header
 
 apply_global_style(); page_header("Gradient Descent", "", eyebrow="OPTIMIZATION")
 section_header("1. Concept")
@@ -11,13 +12,13 @@ section_header("2. Interactive Playground")
 left, right = st.columns([1, 2])
 with left:
     rate = st.slider("Learning rate", .001, 1.0, .10, .001); start = st.slider("Initial x", -8., 8., 6., .1); steps = st.slider("Iterations", 1, 100, 25)
+with right: result, done = exercise_result(gradient_descent, objective_gradient, start, rate, steps)
+grid = np.linspace(-8, 8, 300); fig, ax = plt.subplots(); ax.plot(grid, (grid + 1) ** 2, label="Reference objective")
+if done:
+    xs, losses = result; ax.plot(xs, losses, "o--", label="Your optimization path")
+ax.set(xlabel="x", ylabel="Loss", title="f(x) = (x + 1)²"); ax.legend()
 with right:
-    result, done = exercise_result(gradient_descent, objective_gradient, start, rate, steps)
-    grid = np.linspace(-8, 8, 300)
-    st.line_chart({"x": grid, "Reference objective": (grid + 1) ** 2}, x="x", y="Reference objective")
-    if done:
-        xs, losses = result
-        st.line_chart({"x": xs, "Optimization path": losses}, x="x", y="Optimization path")
+    st.pyplot(fig, width="stretch")
     st.caption("**What to notice:** Stable learning rates approach x = −1; oversized steps oscillate or diverge.")
 section_header("3. Interview Prep")
 interview_questions([
